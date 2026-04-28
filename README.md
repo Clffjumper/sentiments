@@ -6,6 +6,8 @@ from transformers import TrainingArguments, Trainer, DataCollatorWithPadding
 import evaluate
 import numpy as np
 
+
+
 dataset = load_dataset("imdb")
 # Use smaller subset for faster training (important for demo)
 dataset["train"] = dataset["train"].shuffle(seed=42).select(range(2000))
@@ -17,9 +19,6 @@ tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
 
 def preprocess_function(examples):
     return tokenizer(examples["text"], truncation=True)
-
-
-
 tokenized_datasets = dataset.map(preprocess_function, batched=True)
 
 
@@ -28,10 +27,13 @@ data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
 
 
 
+
 model = AutoModelForSequenceClassification.from_pretrained(
     "distilbert-base-uncased",
     num_labels=2
 )
+
+
 
 
 accuracy = evaluate.load("accuracy")
