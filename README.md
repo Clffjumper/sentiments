@@ -7,19 +7,26 @@ import evaluate
 import numpy as np
 
 dataset = load_dataset("imdb")
-
 # Use smaller subset for faster training (important for demo)
 dataset["train"] = dataset["train"].shuffle(seed=42).select(range(2000))
 dataset["test"] = dataset["test"].shuffle(seed=42).select(range(1000))
 
+
 tokenizer = AutoTokenizer.from_pretrained("distilbert-base-uncased")
+
 
 def preprocess_function(examples):
     return tokenizer(examples["text"], truncation=True)
 
+
+
 tokenized_datasets = dataset.map(preprocess_function, batched=True)
 
+
+
 data_collator = DataCollatorWithPadding(tokenizer=tokenizer)
+
+
 
 model = AutoModelForSequenceClassification.from_pretrained(
     "distilbert-base-uncased",
@@ -29,10 +36,15 @@ model = AutoModelForSequenceClassification.from_pretrained(
 
 accuracy = evaluate.load("accuracy")
 
+
+
 def compute_metrics(eval_pred):
     logits, labels = eval_pred
     predictions = np.argmax(logits, axis=1)
     return accuracy.compute(predictions=predictions, references=labels)
+
+
+
 
 training_args = TrainingArguments(
     output_dir="./results",
@@ -47,6 +59,9 @@ training_args = TrainingArguments(
     report_to="none"
 )
 
+
+
+
 trainer = Trainer(
     model=model,
     args=training_args,
@@ -57,12 +72,19 @@ trainer = Trainer(
     compute_metrics=compute_metrics
 )
 
+
+
+
+
 trainer.train()
+
+
 
 trainer.evaluate()
 
+
+
+
 from transformers import pipeline
-
 classifier = pipeline("sentiment-analysis")
-
 print(classifier(""" Sorry"""))
